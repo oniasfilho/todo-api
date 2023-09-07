@@ -24,19 +24,22 @@ public class AuthenticationService {
                 .name(request.firstname())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
+                .role(request.role())
                 .build();
-        repository.save(user);
-        return new AuthenticationResponse(jwtService.generateToken(user));
+        var savedUser = repository.save(user);
+        var jwtToken = jwtService.generateToken(savedUser);
+        return new AuthenticationResponse(jwtToken);
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        var email = request.email();
+        var pass = request.password();
+        System.out.println("EMAIL AND PASSWORD: ");
+        System.out.println(email);
+        System.out.println(pass);
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.email(),
-                        request.password()
-                )
-        );
-        var user = repository.findByEmail(request.email())
+                new UsernamePasswordAuthenticationToken(email, pass));
+        var user = repository.findByEmail(email)
                 .orElseThrow();
         return new AuthenticationResponse(jwtService.generateToken(user));
     }

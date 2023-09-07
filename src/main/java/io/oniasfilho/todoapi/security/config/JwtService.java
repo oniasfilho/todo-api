@@ -17,9 +17,10 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
+    public static Map<String, Object> check = new HashMap<>();
     private final String SECRET_KEY;
 
-    public JwtService(@Value("${jwt.SECRET_KEY}") String SECRET_KEY) {
+    public JwtService(@Value("${application.security.jwt.secret-key}") String SECRET_KEY) {
         this.SECRET_KEY = SECRET_KEY;
     }
 
@@ -41,7 +42,7 @@ public class JwtService {
         Map<String, Object> extraClaims,
         UserDetails userDetails
     ) {
-        return Jwts
+        var teste = Jwts
                 .builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
@@ -49,6 +50,10 @@ public class JwtService {
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
+
+        System.out.println("pit stop");
+
+        return teste;
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -67,7 +72,7 @@ public class JwtService {
     public Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
-                .setSigningKey(SECRET_KEY.getBytes())
+                .setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
