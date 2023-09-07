@@ -1,58 +1,52 @@
 package io.oniasfilho.todoapi.model;
 
+import io.oniasfilho.todoapi.model.token.Token;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
-@Entity
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "_User")
+@AllArgsConstructor
+@Entity
+@Table(name = "_user")
 public class User implements UserDetails {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Integer id;
-
-    private String name;
-
-    @Column(unique = true)
+    private String firstname;
+    private String lastname;
     private String email;
-
-    private LocalDate emailVerified;
-    private String image;
-
-    @OneToMany(mappedBy = "owner")
-    private List<Todo> todos;
+    private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private String password;
+    @OneToMany(mappedBy = "user")
+    private List<Token> tokens;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
+        return role.getAuthorities();
     }
 
     @Override
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
     }
 
     @Override
@@ -67,7 +61,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
