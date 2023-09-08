@@ -17,12 +17,12 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    public static Map<String, Object> check = new HashMap<>();
-    private final String SECRET_KEY;
-
-    public JwtService(@Value("${application.security.jwt.secret-key}") String SECRET_KEY) {
-        this.SECRET_KEY = SECRET_KEY;
-    }
+    @Value("${application.security.jwt.secret-key}")
+    private String secretKey;
+    @Value("${application.security.jwt.expiration}")
+    private long jwtExpiration;
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private long refreshExpiration;
 
     public String extractUsername(String jwt) {
         return extractClaim(jwt, Claims::getSubject);
@@ -37,23 +37,32 @@ public class JwtService {
         return generateToken(new HashMap<>(), userDetails);
     }
 
-//    TODO: check whether I used the correct UserDetails
     public String generateToken(
-        Map<String, Object> extraClaims,
-        UserDetails userDetails
+            Map<String, Object> extraClaims,
+            UserDetails userDetails
     ) {
-        var teste = Jwts
+        return buildToken(extraClaims, userDetails, jwtExpiration);
+    }
+
+    public String generateRefreshToken(
+            UserDetails userDetails
+    ) {
+        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+    }
+
+    private String buildToken(
+            Map<String, Object> extraClaims,
+            UserDetails userDetails,
+            long expiration
+    ) {
+        return Jwts
                 .builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
-
-        System.out.println("pit stop");
-
-        return teste;
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -79,7 +88,7 @@ public class JwtService {
     }
 
     private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

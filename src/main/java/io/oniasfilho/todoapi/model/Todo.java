@@ -1,19 +1,24 @@
 package io.oniasfilho.todoapi.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "Todo")
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Todo {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int todoId;
-
-    private String status;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer todoId;
+    private Boolean status;
     private String title;
-    private Integer ownerId;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "ownerId", referencedColumnName = "id", insertable = false, updatable = false)
+    @ManyToOne
+    @JoinColumn(name = "ownerId")
     private User owner;
 }

@@ -25,7 +25,8 @@ public class SecurityConfig {
             .csrf(CsrfConfigurer::disable)
                 .authorizeHttpRequests((authorizeHttpRequests) ->
                         authorizeHttpRequests
-                                .requestMatchers("/unprotected/**", "/auth/**").permitAll()
+                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/api/todo/**").authenticated()
                                 .anyRequest().authenticated()
                 )
             .sessionManagement(session ->

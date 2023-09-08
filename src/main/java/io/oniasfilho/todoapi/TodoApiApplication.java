@@ -14,15 +14,4 @@ public class TodoApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TodoApiApplication.class, args);
 	}
-
-	@Bean
-	public CommandLineRunner commandLineRunner(
-			AuthenticationService service
-	) {
-		return args -> {
-			var admin = new RegisterRequest("Onias", "da Rocha Filho", "admin@gmail.com", "K1ngKunt4.", Role.ADMIN);
-			System.out.println("Admin token: " + service.register(admin).token());
-		};
-	}
-
 }

@@ -29,16 +29,13 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String email;
 
-    private LocalDate emailVerified;
-    private String image;
-
-    @OneToMany(mappedBy = "owner")
-    private List<Todo> todos;
-
     @Enumerated(EnumType.STRING)
     private Role role;
 
     private String password;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Todo> todos;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
